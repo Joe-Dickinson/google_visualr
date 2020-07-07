@@ -87,11 +87,17 @@ module GoogleVisualr
       js = ""
       js << "\n  function #{chart_function_name(element_id)}() {"
       js << "\n    #{@data_table.to_js}"
-      js << "\n    var chart = new google.#{chart_class}.#{chart_name}(document.getElementById('#{element_id}'));"
+      js << "\n    var interval = setInterval(function() {"
+      js << "\n      if (google.visualization !== undefined && google.visualization.DataTable !== undefined && google.visualization.PieChart !== undefined){"
+      js << "\n        clearInterval(interval);"
+      js << "\n        window.status = 'ready';"
+      js << "\n        var chart = new google.#{chart_class}.#{chart_name}(document.getElementById('#{element_id}'));"
       @listeners.each do |listener|
-        js << "\n    google.visualization.events.addListener(chart, '#{listener[:event]}', #{listener[:callback]});"
+        js << "\n          google.visualization.events.addListener(chart, '#{listener[:event]}', #{listener[:callback]});"
       end
-      js << "\n    chart.draw(data_table, #{js_parameters(@options)});"
+      js << "\n        chart.draw(data_table, #{js_parameters(@options)});"
+      js << "\n      }"
+      js << "\n    }, 100);"
       js << "\n  };"
       js
     end
